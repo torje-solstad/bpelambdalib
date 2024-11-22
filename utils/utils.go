@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -144,4 +145,17 @@ func GetFileS3(fileName string) (string, error) {
 
 	return string(bytes), nil
 
+}
+
+func SetLocationGlobal() (*time.Location, error) {
+	var timeZone string = "Europe/Oslo"
+	loc, err := time.LoadLocation(timeZone)
+	if err != nil {
+		log.Printf("Unable to load locale %s\r\n", timeZone)
+		return nil, err
+	} else {
+		time.Local = loc
+
+	}
+	return loc, nil
 }
