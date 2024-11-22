@@ -20,6 +20,7 @@ var (
 	DWH_USERNAME       string           = os.Getenv("DWH_USERNAME")
 	DWH_PASSWORD       string           = os.Getenv("DWH_PASSWORD")
 	DWH_DB             string           = os.Getenv("DWH_DB")
+	BUCKET             string           = os.Getenv("BUCKET")
 )
 
 func getTopicName(topicname string, topics *sns.ListTopicsOutput) *string {
@@ -117,4 +118,30 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 	return DB, nil
+}
+
+func GetFileS3(fileName string) (string, error) {
+	log.Println("Trying to get a file")
+	log.Printf("FileName=%v\r\n", fileName)
+	svc := s3.New(sess)
+	f, err := svc.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(BUCKET),
+		Key:    aws.String(fileName),
+	})
+
+	if err != nil {
+		log.Println("Could not get file")
+		log.Println(err)
+		return "", err
+	}
+
+	bytes, e := io.ReadAll(f.Body)
+
+	if e != nil {
+		log.Println("Could not read file")
+		return "", e
+	}
+
+	return string(bytes), nil
+
 }
